@@ -1,11 +1,12 @@
 import { Request, Response, Router } from "express";
 import prisma from "../prisma.js";
+import logger from "../utils/logger.js";
 
 const router = Router();
 
 router.get("/health", async (req: Request, res: Response) => {
   try {
-    console.log("runnig-health");
+    logger.info("database started");
     await prisma.$queryRaw`SELECT 1`; // ping DB
     res.status(200).json({ status: "ok" });
   } catch (err) {
