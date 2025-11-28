@@ -1,10 +1,14 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/authRoutes";
-import quoteRoutes from "./routes/quoteRoutes";
-import dbHealthRoute from "./middleware/dbHeath";
-import { globalRateLimiter } from "./middleware/rateLimiter";
+import authRoutes from "./routes/authRoutes.js";
+import dbHealthRoute from "./middleware/dbHeath.js";
+import contactMessageRoute from "./routes/contactMessageRoute.js";
+import quoteRequestRoute from "./routes/quoteRequestRoutes.js";
+import { globalRateLimiter } from "./middleware/rateLimiter.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { notFoundHandler } from "./middleware/notFoundHandler.js";
+import { requestContextMiddleware } from "./middleware/requestContext.js";
 
 const app = express();
 
@@ -19,12 +23,17 @@ app.use(
     credentials: true,
   }),
 );
+app.use(requestContextMiddleware);
 app.use(cookieParser());
 app.use(express.json());
 
 // Routes
-app.use("/api/v1", dbHealthRoute);
-app.use("/api/v1", quoteRoutes);
-app.use("/api/v1", authRoutes);
+app.use("/internal/v1", dbHealthRoute);
+app.use("/internal/v1", authRoutes);
+app.use("/internal/v1", contactMessageRoute);
+app.use("/internal/v1", quoteRequestRoute);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Email</title>
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #eef1f6;
+      font-family: Arial, sans-serif;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      style="padding: 40px 0"
+    >
+      <tr>
+        <td align="center">
+          <!-- WHITE CARD -->
+          <table
+            role="presentation"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            style="background: #ffffff; border-radius: 6px; overflow: hidden"
+          >
+            <!-- Header with Logo -->
+            <tr>
+              <td style="padding: 25px 30px; border-bottom: 1px solid #eee">
+                <img
+                  src="https://static.naukimg.com/s/7/123/i/naukri_Logo.png"
+                  alt="Logo"
+                  style="height: 40px"
+                />
+              </td>
+            </tr>
+
+            <!-- Email Body -->
+            <tr>
+              <td style="padding: 30px; font-size: 15px; color: #333">
+                <p>Dear Customer,</p>
+
+                <p>
+                  Please enter below <strong>OTP</strong> to login to your
+                  account.
+                </p>
+
+                <p style="font-size: 26px; font-weight: bold; color: #000">
+                  {{OTP}}
+                </p>
+
+                <p style="margin-top: 20px">
+                  <strong>Note:</strong> This OTP is valid for the next 30 mins
+                  only. If you did not make this request, please write at
+                  <a
+                    href="mailto:support@securelogic.com"
+                    style="color: #0066cc"
+                  >
+                    support@securelogic.com
+                  </a>
+                </p>
+
+                <p style="margin-top: 35px">
+                  Regards,<br />
+                  <strong>Secure Logic Team</strong>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer Section -->
+            <tr>
+              <td
+                style="
+                  padding: 30px;
+                  text-align: center;
+                  border-top: 1px solid #eee;
+                "
+              >
+                <p style="color: #777; margin-bottom: 5px">
+                  Good luck for login!
+                </p>
+                <p style="color: #777; font-size: 14px; margin-bottom: 20px">
+                  Team Secure Logic
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

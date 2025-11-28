@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import prisma from "./prisma.js";
+// import { createEtherealTransporter } from "./config/mail.js";
+// import "./cron/generateReportCron";
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
