@@ -1,0 +1,18 @@
+import { Request, Response, NextFunction } from "express";
+import { ZodSchema } from "zod";
+import logger from "../utils/logger.js";
+
+export const validateRequest = (schema: ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const parsed = schema.safeParse(req.body);
+    logger.info("validated----");
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: parsed.error.flatten(),
+      });
+    }
+    req.body = parsed.data;
+    next();
+  };
+};
