@@ -26,3 +26,12 @@ export const sensitiveLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Contact message route limiter - stricter
+export const contactMessageLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minute
+  max: 2, // max 2 requests per IP
+  message: { error: "Too many requests, try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
