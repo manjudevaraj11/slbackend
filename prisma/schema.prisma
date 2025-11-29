@@ -30,4 +30,45 @@ model User {
   profilePic      String?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  lastOtpSentAt    DateTime?
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  email_sent  Boolean  @default(false)
+}
+
+enum ServiceName {
+  PCI_DSS
+  SOC_2
+  ISO_27001
+  PENETRATION_SECURITY_TESTING
+  GRC
+  GDPR
+  HIPAA
+  SECURITY_REVIEW
+  SECURE_CODE_REVIEW
+  CONFIGURATION_REVIEW
+  DESIGN_REVIEW
+  SECURITY_ADVISORY
+  ARCHITECTURE_REVIEW
+  SECURE_APPLICATION_DEVELOPMENT
+  CAPABILITY_MATURITY_ASSESSMENTS
+}
+
+model QuoteRequest {
+  id           String   @id @default(uuid())
+  name         String   @db.VarChar(100)
+  phone        String   @db.VarChar(20)
+  email        String   @db.VarChar(254)
+  companyName  String   @db.VarChar(50)
+  message      String?  @db.VarChar(1000)
+  jobTitle     String?  @db.VarChar(50)
+  services     ServiceName[]
+  createdAt    DateTime @default(now())
+  email_sent  Boolean  @default(false)
 }
