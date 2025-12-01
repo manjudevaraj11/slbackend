@@ -9,7 +9,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import prisma from "../prisma.js";
 // import EmailService from "../services/EmailService.js";
-import { sendTestEmail } from "../services/EmailServiceTesting.js";
+// import { sendTestEmail } from "../services/EmailServiceTesting.js";
 import axios from "axios";
 import { z } from "zod";
 import EmailService from "../services/EmailService.js";
@@ -329,14 +329,14 @@ export const register = async (req: Request, res: Response) => {
         otpExpiry,
       },
     });
-    sendTestEmail(email, verificationOtp);
+    // sendTestEmail(email, verificationOtp);
 
-    // await EmailService.sendMail(
-    //   email,
-    //   "Secure Logic - Login Using OTP",
-    //   `Your OTP is ${verificationOtp}`,
-    //   html
-    // );
+    await EmailService.sendMail(
+      email,
+      "Secure Logic - Login Using OTP",
+      `Your OTP is ${verificationOtp}`,
+      html,
+    );
 
     // await EmailService.sendMail(
     //   "Vamshi.Krishna@securelogicgroup.co",
