@@ -8,12 +8,13 @@ import {
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import prisma from "../prisma.js";
-// import EmailService from "../services/EmailService.js";
-// import { sendTestEmail } from "../services/EmailServiceTesting.js";
+// import TestEmailService from "../services/EmailServiceTesting.js";
 import axios from "axios";
 import { z } from "zod";
+// import { loadTemplate } from "../utils/loadTemplate.js";
+// import { EmailTheme } from "../config/theme.js";
+import { buildOtpEmailTemplate } from "../emailTemplates/builders/otpBuilder.js";
 import EmailService from "../services/EmailService.js";
-import { loadTemplate } from "../utils/loadTemplate.js";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
@@ -70,8 +71,6 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    console.log("tocheck----", res.getHeaders());
-
     // Send response
     res.json({
       message: "Logged in",
@@ -97,8 +96,6 @@ export const meSchema = z.object({
 });
 
 export const me = async (req: Request, res: Response) => {
-  // console.log("req.cookies:", req.cookies);
-
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -106,7 +103,6 @@ export const me = async (req: Request, res: Response) => {
     meSchema.parse({ accessToken, refreshToken });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      console.log("Validation error in /me:", err.issues);
       return res.status(400).json({ errors: err.issues });
     }
     return res.status(400).json({ message: "Invalid input" });
@@ -143,7 +139,6 @@ export const me = async (req: Request, res: Response) => {
     }
 
     // ✅ Success response includes status for consistent frontend handling
-    // console.log("send-respone");
     return res.json({
       status: "SUCCESS",
       user,
@@ -162,7 +157,6 @@ export const me = async (req: Request, res: Response) => {
 
 export const refresh = async (req: Request, res: Response) => {
   const token = req.cookies.refreshToken;
-  console.log("refresh ---token: ", token);
   if (!token) return res.status(401).json({ message: "No refresh token" });
 
   try {
@@ -171,9 +165,7 @@ export const refresh = async (req: Request, res: Response) => {
     // Fetch user from DB
     const user = await prisma.user.findUnique({ where: { id: payload.id } });
 
-    // console.log("user----", user);
     if (!user || user.refreshToken !== token) {
-      // console.log("user.refreshToken: ", user.refreshToken, "token: ", token);
       return res.status(403).json({ message: "Invalid refresh token" });
     }
 
@@ -201,7 +193,6 @@ export const refresh = async (req: Request, res: Response) => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, // 15 * 60 * 1000,
     });
-    console.log("refresh -sent", res.getHeaders());
     res.json({ message: "Tokens refreshed" });
   } catch (err) {
     console.error(err);
@@ -235,7 +226,6 @@ export const logout = async (req: Request, res: Response) => {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ errors: err.issues });
     }
-    // console.error("Logout failed:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -275,12 +265,9 @@ export const register = async (req: Request, res: Response) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const verificationOtp = crypto.randomInt(100000, 999999).toString(); // 6-digit numeric OTP
-    const otpExpiry = new Date(Date.now() + 3 * 60 * 1000); // 3 min expiry
+    const otpExpiry = new Date(Date.now() + 30 * 60 * 1000); // 30 min expiry
 
-    const html = loadTemplate("otpTemplate.html").replace(
-      "{{OTP}}",
-      verificationOtp,
-    );
+    const html = buildOtpEmailTemplate(verificationOtp);
 
     if (existingUser && !existingUser.emailVerified) {
       // Case 2: User exists but not verified → update OTP & expiry
@@ -311,6 +298,14 @@ export const register = async (req: Request, res: Response) => {
       // );
 
       // sendTestEmail(email, verificationOtp);
+
+      // await TestEmailService.sendMail(
+      //   email,
+      //   "Secure Logic - Login Using OTP (TEST)",
+      //   `Your OTP is ${verificationOtp}`,
+      //   html
+      // );
+
       return res
         .status(200)
         .json({ message: "Previous registration not verified. OTP resent." });
@@ -330,6 +325,13 @@ export const register = async (req: Request, res: Response) => {
       },
     });
     // sendTestEmail(email, verificationOtp);
+
+    // await TestEmailService.sendMail(
+    //   email,
+    //   "Secure Logic - Login Using OTP (TEST)",
+    //   `Your OTP is ${verificationOtp}`,
+    //   html
+    // );
 
     await EmailService.sendMail(
       email,
@@ -413,8 +415,6 @@ export const verifyOtp = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    console.log("tocheck----", res.getHeaders());
-
     res.json({
       message: "Email verified successfully",
       user: {
@@ -467,7 +467,7 @@ export const resendOtp = async (req: Request, res: Response) => {
     const isExpired = !otpExpiry || otpExpiry < new Date();
     if (!otp || isExpired) {
       otp = generateOtp();
-      otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
+      otpExpiry = new Date(Date.now() + 30 * 60 * 1000); // 30 min expiry
     }
 
     // ✅ update last sent time, only regenerate fields if changed
@@ -482,7 +482,7 @@ export const resendOtp = async (req: Request, res: Response) => {
 
     console.log(`Resend OTP → ${email}: ${otp}`);
 
-    const html = loadTemplate("otpTemplate.html").replace("{{OTP}}", otp);
+    const html = buildOtpEmailTemplate(otp);
 
     await EmailService.sendMail(
       email,
@@ -500,6 +500,13 @@ export const resendOtp = async (req: Request, res: Response) => {
 
     // ✅ send (or re-send) the OTP email
     // await sendTestEmail(email, otp);
+
+    // await TestEmailService.sendMail(
+    //   email,
+    //   "Secure Logic - Login Using OTP (TEST)",
+    //   `Your OTP is ${otp}`,
+    //   html
+    // );
 
     return res.json({
       message: isExpired
@@ -603,6 +610,7 @@ export const googleCallback = async (req: Request, res: Response) => {
           googleId,
           providers: { set: ["google"] },
           profilePic: picture,
+          emailVerified: true,
         },
       });
     } else if (!user.googleId) {
