@@ -56,18 +56,35 @@ export const login = async (req: Request, res: Response) => {
       data: { refreshToken },
     });
 
-    // Set cookies
+    // OLD Set cookies
+    // res.cookie("accessToken", accessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
+    // });
+
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
+    // });
+
+    // NEW Set cookies
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none", // strict
+      path: "/",
       maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none", // strict
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -179,20 +196,38 @@ export const refresh = async (req: Request, res: Response) => {
       data: { refreshToken: newRefreshToken },
     });
 
-    // Set cookies
+    // OLD Set cookies
+    // res.cookie("accessToken", newAccessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 15 * 60 * 1000, // 15 * 1000 // 15 * 60 * 1000,
+    // });
+
+    // res.cookie("refreshToken", newRefreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, // 15 * 60 * 1000,
+    // });
+
+    // NEW Set cookies
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 * 1000 // 15 * 60 * 1000,
+      sameSite: "none", // strict
+      path: "/",
+      maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, // 15 * 60 * 1000,
+      sameSite: "none", // strict
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
     });
+
     res.json({ message: "Tokens refreshed" });
   } catch (err) {
     console.error(err);
@@ -400,18 +435,35 @@ export const verifyOtp = async (req: Request, res: Response) => {
       },
     });
 
-    // Set cookies
+    // OLD Set cookies
+    // res.cookie("accessToken", accessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
+    // });
+
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
+    // });
+
+    // NEW cookies
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none", // strict
+      path: "/",
       maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none", // strict
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
