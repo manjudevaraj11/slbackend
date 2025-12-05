@@ -687,19 +687,36 @@ export const googleCallback = async (req: Request, res: Response) => {
       data: { refreshToken },
     });
 
-    // Set cookies
+    // OLD Set cookies
+    // res.cookie("accessToken", accessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 15 * 1000,
+    // });
+
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   maxAge: 25 * 1000,
+    // });
+
+    // NEW Set cookies
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 1000,
+      sameSite: "none", // strict
+      path: "/",
+      maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 25 * 1000,
+      sameSite: "none", // strict
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return res.redirect(`${process.env.FRONTEND_URL!}/oauth-success`);
