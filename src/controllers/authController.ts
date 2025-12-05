@@ -483,7 +483,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ errors: err.issues });
     }
-    // console.error("Error verifying OTP:", err);
+    console.log("Error verifying OTP:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
