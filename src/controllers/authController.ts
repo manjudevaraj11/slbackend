@@ -430,7 +430,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
     // Update email as verified
     await prisma.user.update({
-      where: { email },
+      where: { email: normalizedEmail },
       data: {
         emailVerified: true,
         verificationOtp: null,
