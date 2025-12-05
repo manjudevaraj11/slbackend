@@ -649,79 +649,74 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const { sub: googleId, email, name, picture } = userInfo.data;
 
-    let user = await prisma.user.findUnique({
-      where: { email },
-    });
+    let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      // new user
+      // New user
       user = await prisma.user.create({
         data: {
           email,
           name,
+          profilePic: picture,
           googleId,
           providers: { set: ["google"] },
-          profilePic: picture,
           emailVerified: true,
         },
       });
     } else if (!user.googleId) {
-      // existing local account → link Google
+      // Existing email/password user → link Google
       user = await prisma.user.update({
         where: { email },
         data: {
           googleId,
+          profilePic: user.profilePic || picture,
           providers: { push: "google" },
+        },
+      });
+    } else {
+      user = await prisma.user.update({
+        where: { email },
+        data: {
           profilePic: user.profilePic || picture,
         },
       });
     }
 
-    // Generate tokens AFTER user exists
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Save refresh token
-    user = await prisma.user.update({
+    await prisma.user.update({
       where: { email },
       data: { refreshToken },
     });
 
-    // OLD Set cookies
-    // res.cookie("accessToken", accessToken, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: "strict",
-    //   maxAge: 15 * 1000,
-    // });
+    const sameSiteValue =
+      process.env.NODE_ENV === "production"
+        ? ("none" as const)
+        : ("lax" as const);
 
-    // res.cookie("refreshToken", refreshToken, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: "strict",
-    //   maxAge: 25 * 1000,
-    // });
-
-    // NEW Set cookies
-    res.cookie("accessToken", accessToken, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: sameSiteValue,
       path: "/",
-      maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
+    };
+
+    res.cookie("accessToken", accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.redirect(`${process.env.FRONTEND_URL!}/oauth-success`);
+    console.log("redirecting---", `${process.env.FRONTEND_URL}/oauth-success`);
+
+    return res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
   } catch (err) {
-    console.error(err);
+    console.error("Google OAuth Error", err);
     return res.status(500).json({ error: "Google login failed" });
   }
 };
