@@ -6,6 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const loadTemplate = (fileName: string) => {
-  const filePath = path.join(__dirname, "../../src/emailTemplates", fileName);
+  const filePath = path.join(
+    __dirname,
+    "../../src/emailTemplates/templates",
+    fileName,
+  );
   return fs.readFileSync(filePath, "utf-8");
 };
