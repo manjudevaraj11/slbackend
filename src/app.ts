@@ -12,6 +12,8 @@ import { requestContextMiddleware } from "./middleware/requestContext.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 // Middlewares
 app.use(globalRateLimiter);
 app.use(
