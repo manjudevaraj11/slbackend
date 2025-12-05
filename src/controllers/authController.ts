@@ -697,9 +697,10 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: sameSiteValue,
       path: "/",
+      domain: ".securelogicgroup.co",
     };
 
     res.cookie("accessToken", accessToken, {
