@@ -75,17 +75,17 @@ export const login = async (req: Request, res: Response) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
-      maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     // Send response
@@ -215,17 +215,17 @@ export const refresh = async (req: Request, res: Response) => {
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
-      maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ message: "Tokens refreshed" });
@@ -409,8 +409,12 @@ export const verifyOtpSchema = z.object({
 export const verifyOtp = async (req: Request, res: Response) => {
   try {
     const { email, otp } = verifyOtpSchema.parse(req.body);
+    const normalizedEmail = email.toLowerCase();
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
     if (!user) return res.status(400).json({ message: "Bad request" });
 
     // Check OTP and expiry
@@ -454,17 +458,17 @@ export const verifyOtp = async (req: Request, res: Response) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
-      maxAge: 15 * 60 * 1000, // 15 * 1000, // 15 * 60 * 1000, // 15 minutes
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // strict
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 25 * 1000, //7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({
@@ -690,26 +694,19 @@ export const googleCallback = async (req: Request, res: Response) => {
       data: { refreshToken },
     });
 
-    const sameSiteValue =
-      process.env.NODE_ENV === "production"
-        ? ("none" as const)
-        : ("lax" as const);
-
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: sameSiteValue,
-      path: "/",
-      domain: ".securelogicgroup.co",
-    };
-
     res.cookie("accessToken", accessToken, {
-      ...cookieOptions,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      path: "/",
       maxAge: 15 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
-      ...cookieOptions,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
