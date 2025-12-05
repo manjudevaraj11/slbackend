@@ -37,8 +37,12 @@ export const login = async (req: Request, res: Response) => {
     // Validate request body
     const { email, password } = loginSchema.parse(req.body);
 
+    const normalizedEmail = email.toLowerCase();
+
     // Find user
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     // Compare password
