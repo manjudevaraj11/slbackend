@@ -9,10 +9,19 @@ import { globalRateLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { requestContextMiddleware } from "./middleware/requestContext.js";
+import helmet from "helmet";
 
 const app = express();
 
 app.set("trust proxy", 1);
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
+
+app.disable("x-powered-by");
 
 // Middlewares
 app.use(globalRateLimiter);
@@ -27,7 +36,9 @@ app.use(
 );
 app.use(requestContextMiddleware);
 app.use(cookieParser());
-app.use(express.json());
+
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 
 // Routes
 app.use("/internal/v1", dbHealthRoute);
