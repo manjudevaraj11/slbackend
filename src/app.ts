@@ -18,6 +18,7 @@ app.set("trust proxy", 1);
 app.use(
   helmet({
     contentSecurityPolicy: false,
+    frameguard: { action: "sameorigin" },
   }),
 );
 
@@ -27,10 +28,7 @@ app.disable("x-powered-by");
 app.use(globalRateLimiter);
 app.use(
   cors({
-    origin: [
-      process.env.CLIENT_URL || "http://localhost:3000",
-      "http://192.168.201.201:3000",
-    ],
+    origin: ["https://securelogicgroup.co", "http://localhost:3000"],
     credentials: true,
   }),
 );
